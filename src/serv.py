@@ -4,7 +4,8 @@ import time
 
 from textwrap import wrap
 
-justPrint = False #use without com port, just print, for debug
+justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
+WAIT_TIME = 35 # время отображения сообщения для водителя после въезда (time of display of message for the driver after entry)
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -33,6 +34,10 @@ strC5 = bytearray.fromhex('FFA20101000A')
 strC6 = bytearray.fromhex('FFA201010000')
 strC7 = bytearray.fromhex('FFA30101000A')
 strC8 = bytearray.fromhex('FFA301010000')
+
+# Russian to English letters for compare unified
+mt = str.maketrans({'А': 'A', 'В': 'B','Е': 'E', 'К': 'K','М': 'M', 'Н': 'H','О': 'O', 'Р': 'P','С': 'C', 'Т': 'T','У': 'Y', 'Х': 'X',
+'а': 'a', 'в': 'b','е': 'e', 'к': 'k','м': 'm', 'н': 'h','о': 'o', 'р': 'p','с': 'c', 'т': 't', 'у': 'y', 'х': 'x'})
 
 listStrC = [strC1,strC2,strC3,strC4,strC5,strC6,strC7,strC8]
 
@@ -75,12 +80,12 @@ def readMessages(str):
 
 #read white, grey, black numbers of car
 def readList(fileName):
+    global mt
     try:
-        with open(fileName, 'r', encoding='cp1251', errors='replace', newline='') as f:
+        with open(fileName, 'r', encoding='utf-8-sig', errors='replace', newline='') as f:
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
-            content = [x.strip() for x in content]
-            #print(content[0].encode("cp1251"))
+            content = [x.strip().translate(mt).upper() for x in content]
             return content
     except Exception as e:
         print("No Mess file, greetings will by def "+str(e))
@@ -90,8 +95,7 @@ def readStrHandler(line):
     try:
         strList = line.split(",")
         strNum = strList[1] # number
-        strNum = strNum.strip("\"")
-        strNum = strNum.casefold()
+        strNum = strNum.strip("\"")        
         return strNum
     except Exception as e:
         print("Can't recognize num: "+line)
@@ -131,11 +135,12 @@ def printMessages(str, k):
         print("print wrapped mess error:"+ str(e))
 
 def checkForClear():
+    global WAIT_TIME
     global isShown
     global tm
     dt = time.time()-tm
     #print(dt)
-    if dt>20 and isShown:
+    if dt>WAIT_TIME and isShown:
         isShown = False
         str=strB1 + strS + strE
         portWrite(str)
@@ -196,9 +201,6 @@ if __name__ == '__main__':
     list1 = readList('1.txt')
     list2 = readList('2.txt')
     list3 = readList('3.txt')
-    list1 = [x.casefold() for x in list1]
-    list2 = [x.casefold() for x in list2]
-    list3 = [x.casefold() for x in list3]
     
     #avtomarshall file
     logfile = open("VehicleRegistrationLog.csv","r", encoding='cp1251', errors='replace', newline='')
@@ -229,7 +231,7 @@ if __name__ == '__main__':
                     if x.find(strNum) != -1:
                         strMess = strMess2
                         strWelc = strWelcome2
-                        print("welcome2 " + strNum + " / "+ list2[0]+ " / "+ list3[0])
+                        print("welcome2 " + strNum)
                         numExist = True
                         break
             #search in List 3
@@ -242,7 +244,7 @@ if __name__ == '__main__':
                         numExist = True
                         break
             if not numExist:
-                print("welcome4(1) " + strNum+ " / "+ list2[0])
+                print("welcome4 (no recognize) " + strNum)
 
             str=strB1 + strWelc.encode('cp1251') + strS + strNum.encode('cp1251') +strE
             portWrite(str)
