@@ -36,7 +36,7 @@ strC7 = bytearray.fromhex('FFA30101000A')
 strC8 = bytearray.fromhex('FFA301010000')
 
 # Russian to English letters for compare unified
-mt = str.maketrans({'А': 'A', 'В': 'B','Е': 'E', 'К': 'K','М': 'M', 'Н': 'H','О': 'O', 'Р': 'P','С': 'C', 'Т': 'T','У': 'Y', 'Х': 'X',
+ru_en_table = str.maketrans({'А': 'A', 'В': 'B','Е': 'E', 'К': 'K','М': 'M', 'Н': 'H','О': 'O', 'Р': 'P','С': 'C', 'Т': 'T','У': 'Y', 'Х': 'X',
 'а': 'a', 'в': 'b','е': 'e', 'к': 'k','м': 'm', 'н': 'h','о': 'o', 'р': 'p','с': 'c', 'т': 't', 'у': 'y', 'х': 'x'})
 
 listStrC = [strC1,strC2,strC3,strC4,strC5,strC6,strC7,strC8]
@@ -80,12 +80,12 @@ def readMessages(str):
 
 #read white, grey, black numbers of car
 def readList(fileName):
-    global mt
+    global ru_en_table
     try:
         with open(fileName, 'r', encoding='utf-8-sig', errors='replace', newline='') as f:
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
-            content = [x.strip().translate(mt).upper() for x in content]
+            content = [x.strip().translate(ru_en_table).upper() for x in content]
             return content
     except Exception as e:
         print("No Mess file, greetings will by def "+str(e))
@@ -95,7 +95,7 @@ def readStrHandler(line):
     try:
         strList = line.split(",")
         strNum = strList[1] # number
-        strNum = strNum.strip("\"")        
+        strNum = strNum.strip("\"")
         return strNum
     except Exception as e:
         print("Can't recognize num: "+line)
