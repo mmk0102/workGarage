@@ -4,7 +4,7 @@ import time
 
 from textwrap import wrap
 
-justPrint = True #use without com port, just print, for debug
+justPrint = False #use without com port, just print, for debug
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -17,22 +17,22 @@ if not justPrint:
     ComPort.stopbits = 1
 
 # Choose string on TAB (1-4)
-strB1 = bytearray.fromhex('A003010000') # addr, shrift, color, x, y
-strB2 = bytearray.fromhex('A103010000')
-strB3 = bytearray.fromhex('A203010000')
-strB4 = bytearray.fromhex('A303010000')
+strB1 = bytearray.fromhex('FFA003010000') # addr, shrift, color, x, y
+strB2 = bytearray.fromhex('FFA103010000')
+strB3 = bytearray.fromhex('FFA203010000')
+strB4 = bytearray.fromhex('FFA303010000')
 
 listStrB = [strB1,strB2,strB3,strB4]
 
 # Choose string on TAB (1-8)
-strC1 = bytearray.fromhex('A001010000')
-strC2 = bytearray.fromhex('A00102000B')
-strC3 = bytearray.fromhex('A101010000')
-strC4 = bytearray.fromhex('A10102000B')
-strC5 = bytearray.fromhex('A201010000')
-strC6 = bytearray.fromhex('A20102000B')
-strC7 = bytearray.fromhex('A301010000')
-strC8 = bytearray.fromhex('A30102000B')
+strC1 = bytearray.fromhex('FFA00101000A')
+strC2 = bytearray.fromhex('FFA001010000')
+strC3 = bytearray.fromhex('FFA10101000A')
+strC4 = bytearray.fromhex('FFA101010000')
+strC5 = bytearray.fromhex('FFA20101000A')
+strC6 = bytearray.fromhex('FFA201010000')
+strC7 = bytearray.fromhex('FFA30101000A')
+strC8 = bytearray.fromhex('FFA301010000')
 
 listStrC = [strC1,strC2,strC3,strC4,strC5,strC6,strC7,strC8]
 
@@ -114,7 +114,7 @@ def printMessages(str, k):
                 str=listStrB[i+1] + x.encode('cp1251') + strE
                 portWrite(str)
         else:
-            list = wrap(str, 23, break_long_words=True)
+            list = wrap(str, 38, break_long_words=True)
             print("print little type:")
             print(str)
             for i, x in enumerate(list[:(MAX_STR-k)*2]):
@@ -125,7 +125,7 @@ def printMessages(str, k):
                     strEnd = strE
 
                 str=listStrC[i+2*k] + x.encode('cp1251') + strEnd #each string has two
-                time.sleep(0.2)
+                time.sleep(0.4)
                 portWrite(str)
     except Exception as e:
         print("print wrapped mess error:"+ str(e))
@@ -135,7 +135,7 @@ def checkForClear():
     global tm
     dt = time.time()-tm
     #print(dt)
-    if dt>40 and isShown:
+    if dt>20 and isShown:
         isShown = False
         str=strB1 + strS + strE
         portWrite(str)

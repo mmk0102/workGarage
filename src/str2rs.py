@@ -11,7 +11,7 @@ ComPort.parity = 'N'
 ComPort.stopbits = 1
 args = sys.argv
 z = len(args)
-strB = bytearray.fromhex('A003010000')
+strB = bytearray.fromhex('FFA003010000')
 strE = bytes.fromhex('000800B1FD')
 strS = bytes.fromhex('20')
 
@@ -23,13 +23,13 @@ strS = bytes.fromhex('20')
 if z<2: #Clear all
 	str = strB+strS+strE
 	ComPort.write(str)
-	strB[0] = 0xA1
+	strB[1] = 0xA1
 	str = strB+strS+strE
 	ComPort.write(str)
-	strB[0] = 0xA2
+	strB[1] = 0xA2
 	str = strB+strS+strE
 	ComPort.write(str)
-	strB[0] = 0xA3
+	strB[1] = 0xA3
 	str = strB+strS+strE
 	ComPort.write(str)
 	print("must clear ")	
@@ -40,7 +40,7 @@ elif z < 4: #Clear string
 	n = n-1
 	if n>3: 
 		n = 3
-	strB[0] = 0xA0 + n
+	strB[1] = 0xA0 + n
 	str = strB+strS+strE
 	ComPort.write(str)
 	ComPort.close()        # close port
@@ -50,12 +50,12 @@ else:
 	n = n-1
 	if n>3: 
 		n = 3
-	strB[0] = 0xA0 + n
+	strB[1] = 0xA0 + n
 	#color
 	n = int(args[2])
 	if n>7: 
 		n = 7
-	strB[2] =  n
+	strB[3] =  n
 
 str=strB
 for i in args[3:]:
