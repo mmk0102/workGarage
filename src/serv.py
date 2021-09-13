@@ -1,11 +1,14 @@
 import sys
-import serial
 import time
+import serial
+from datetime import datetime
+
 
 from textwrap import wrap
 
-justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
+justPrint = True # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
 WAIT_TIME = 35 # время отображения сообщения для водителя после въезда (time of display of message for the driver after entry)
+current_dir = "C:\my\work\workGarage\src\\"
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -57,7 +60,7 @@ def portWrite(str):
 # Get texts welcome from WelcomeANSI.txt
 def readWelcomes():
     try:
-        with open("WelcomeANSI.txt", 'r', encoding='cp1251', errors='replace', newline='') as f:
+        with open(current_dir+"WelcomeANSI.txt", 'r', encoding='cp1251', errors='replace', newline='') as f:
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
             content = [x.strip() for x in content]
@@ -69,7 +72,7 @@ def readWelcomes():
 # Get text messages from MessageANSI.txt
 def readMessages(str):
     try:
-        with open(str, 'r', encoding='cp1251', errors='replace', newline='') as f:
+        with open(current_dir+str, 'r', encoding='cp1251', errors='replace', newline='') as f:
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
             content = [x.strip() for x in content]
@@ -82,7 +85,7 @@ def readMessages(str):
 def readList(fileName):
     global ru_en_table
     try:
-        with open(fileName, 'r', encoding='utf-8-sig', errors='replace', newline='') as f:
+        with open(current_dir+fileName, 'r', encoding='utf-8-sig', errors='replace', newline='') as f:
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
             content = [x.strip().translate(ru_en_table).upper() for x in content]
@@ -164,11 +167,13 @@ def follow(thefile):
                 clear = checkForClear()
                 time.sleep(0.2)
                 if clear:
-                    print("Print Ads")
-                    printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
-                    cnt_ads += 1
-                    if cnt_ads >= len(ads_list):
-                        cnt_ads = 0
+                    hour = datetime.now().hour
+                    if hour > 7 and hour < 21: # show reclamu in certan hours
+                        print("Print Ads h=",hour)
+                        printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
+                        cnt_ads += 1
+                        if cnt_ads >= len(ads_list):
+                            cnt_ads = 0
                 continue
             yield line
         except Exception as e:
@@ -190,9 +195,9 @@ if __name__ == '__main__':
         strMess1, strMess2, strMess3, strMess4 = "Приветствуем","Здравствуйте","Въезд запрещен","Dont understand"
     
     try:
-        ads_list = readMessages("AnyRecordsANSI.txt")
+        ads_list = readMessages("reclamaANSI.txt")
     except Exception as e:
-        print("Ex: AnyRecordsANSI.txt read",e)
+        print("Ex: reclamaANSI.txt read",e)
     
     if len(ads_list):   # если есть список рекламных сообщений
         cnt_ads = 0     # делаем счетчик валидным
@@ -203,7 +208,7 @@ if __name__ == '__main__':
     list3 = readList('3.txt')
     
     #avtomarshall file
-    logfile = open("VehicleRegistrationLog.csv","r", encoding='cp1251', errors='replace', newline='')
+    logfile = open(current_dir+"VehicleRegistrationLog.csv","r", encoding='cp1251', errors='replace', newline='')
     loglines = follow(logfile)
 
     for line in loglines:
