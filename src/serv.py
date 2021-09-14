@@ -49,8 +49,8 @@ strE_no_clear = bytes.fromhex('000801B1FD')
 strS = bytes.fromhex('20') # Space
 
 cnt_ads = -1  # counter for ads messages
-tm = time.time()
-isShown = False
+tm = time.time() - WAIT_TIME + 1 # первую рекламму напечатает через секунду после вкл.
+isShown = True # Есть напечатанное приветствие для авто. (по умолчанию 1 что бы при включении печатал рекламу)
 
 def portWrite(str):
     if not justPrint:
@@ -97,11 +97,19 @@ def readList(fileName):
 def readStrHandler(line):
     try:
         strList = line.split(",")
+        strDirection = strList[6]
+
+        strDirection = strDirection.strip("\"")
+        if strDirection == "РЎРЅРёР·Сѓ РІРІРµСЂС…": # РЎРЅРёР·Сѓ РІРІРµСЂС… это 'Снизу вверх' - авто выезжает
+            print('Car is go out - do nothing')
+            return None
+
         strNum = strList[1] # number
         strNum = strNum.strip("\"")
         return strNum
     except Exception as e:
-        print("Can't recognize num: "+line)
+        if len(line) != 2: # этот случай возникает при не пустой строке
+            print("Can't recognize num: ", len(line), str(e))
         return None
 
 #print to Panel (0-3) or (0-7) strings, take str, and start num of 'Big string': 0..3
@@ -142,7 +150,11 @@ def checkForClear():
     global isShown
     global tm
     dt = time.time()-tm
-    #print(dt)
+    # Условие смены рекламы по времени
+    if dt > 80:
+        tm = time.time()
+        isShown = True
+    #print('dT = ',dt)
     if dt>WAIT_TIME and isShown:
         isShown = False
         str=strB1 + strS + strE
@@ -169,7 +181,7 @@ def follow(thefile):
                 if clear:
                     hour = datetime.now().hour
                     if hour > 7 and hour < 21: # show reclamu in certan hours
-                        print("Print Ads h=",hour)
+                        print("Print Ads hour =",hour)
                         printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
                         cnt_ads += 1
                         if cnt_ads >= len(ads_list):
@@ -182,6 +194,7 @@ def follow(thefile):
             raise ValueError
             if not justPrint:
                 ComPort.close()        # close port
+
 
 if __name__ == '__main__':
     
@@ -213,7 +226,10 @@ if __name__ == '__main__':
 
     for line in loglines:
         #print(line)
-        strNum = readStrHandler(line)
+        if len(line) > 2: # если строка не пустая
+            strNum = readStrHandler(line)
+        else:
+            strNum = None
         isShown = False
         if strNum:
             #print string 1
@@ -257,10 +273,3 @@ if __name__ == '__main__':
             printMessages(strMess, 1) #print string 1 from (0..3)
             tm = time.time()
             isShown = True
-
-
-
-
-
-
-
