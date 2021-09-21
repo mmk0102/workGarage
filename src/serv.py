@@ -6,9 +6,10 @@ from datetime import datetime
 
 from textwrap import wrap
 
-justPrint = True # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
+justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
 WAIT_TIME = 35 # время отображения сообщения для водителя после въезда (time of display of message for the driver after entry)
-current_dir = "C:\my\work\workGarage\src\\"
+current_dir = "C:\managePanel\\"
+# current_dir = "C:\my\work\workGarage\src\\"
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -126,7 +127,7 @@ def printMessages(str, k):
         list = wrap(str, 24, break_long_words=True)
         if list.__len__() <= MAX_STR-k:
             for i, x in enumerate(list):
-                str=listStrB[i+1] + x.encode('cp1251') + strE
+                str=listStrB[i] + x.encode('cp1251') + strE
                 portWrite(str)
         else:
             list = wrap(str, 38, break_long_words=True)
