@@ -22,7 +22,7 @@ if not justPrint:
     ComPort.stopbits = 1
 
 # Choose string on TAB (1-4)
-strB1 = bytearray.fromhex('FFA003010000') # addr, shrift, color, x, y
+strB1 = bytearray.fromhex('FFA003010000') # prefix FF, addr, shrift, color, x, y
 strB2 = bytearray.fromhex('FFA103010000')
 strB3 = bytearray.fromhex('FFA203010000')
 strB4 = bytearray.fromhex('FFA303010000')
