@@ -2,14 +2,22 @@ import sys
 import time
 import serial
 from datetime import datetime
-
-
 from textwrap import wrap
 
-justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
+# настройка цвета текста
+COLOR = "01" # Красный - 01, Зеленый - 02, Желтый - 03, Синий - 04, Пурпурный - 05, Голубой - 06, Белый - 07
+
+# длительность одного рекламного сообщения (сек)
 WAIT_TIME = 35 # время отображения сообщения для водителя после въезда (time of display of message for the driver after entry)
-current_dir = "C:\managePanel\\"
-# current_dir = "C:\my\work\workGarage\src\\"
+
+# часы отображения рекламы (с .. по ..)
+START_TIME_VIEW = 7
+END_TIME_VIEW = 21
+
+# текущая директория
+current_dir = "C:\managePanel\\" # "C:\managePanel\\"  current_dir = "C:\my\work\workGarage\src\\"
+
+justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -22,22 +30,22 @@ if not justPrint:
     ComPort.stopbits = 1
 
 # Choose string on TAB (1-4)
-strB1 = bytearray.fromhex('FFA003010000') # prefix FF, addr, shrift, color, x, y
-strB2 = bytearray.fromhex('FFA103010000')
-strB3 = bytearray.fromhex('FFA203010000')
-strB4 = bytearray.fromhex('FFA303010000')
+strB1 = bytearray.fromhex('FFA003'+COLOR+'0000') # prefix FF, addr, shrift, color, x, y
+strB2 = bytearray.fromhex('FFA103'+COLOR+'0000')
+strB3 = bytearray.fromhex('FFA203'+COLOR+'0000')
+strB4 = bytearray.fromhex('FFA303'+COLOR+'0000')
 
 listStrB = [strB1,strB2,strB3,strB4]
 
 # Choose string on TAB (1-8)
-strC1 = bytearray.fromhex('FFA00101000A')
-strC2 = bytearray.fromhex('FFA001010000')
-strC3 = bytearray.fromhex('FFA10101000A')
-strC4 = bytearray.fromhex('FFA101010000')
-strC5 = bytearray.fromhex('FFA20101000A')
-strC6 = bytearray.fromhex('FFA201010000')
-strC7 = bytearray.fromhex('FFA30101000A')
-strC8 = bytearray.fromhex('FFA301010000')
+strC1 = bytearray.fromhex('FFA001'+COLOR+'000A')
+strC2 = bytearray.fromhex('FFA001'+COLOR+'0000')
+strC3 = bytearray.fromhex('FFA101'+COLOR+'000A')
+strC4 = bytearray.fromhex('FFA101'+COLOR+'0000')
+strC5 = bytearray.fromhex('FFA201'+COLOR+'000A')
+strC6 = bytearray.fromhex('FFA201'+COLOR+'0000')
+strC7 = bytearray.fromhex('FFA301'+COLOR+'000A')
+strC8 = bytearray.fromhex('FFA301'+COLOR+'0000')
 
 # Russian to English letters for compare unified
 ru_en_table = str.maketrans({'А': 'A', 'В': 'B','Е': 'E', 'К': 'K','М': 'M', 'Н': 'H','О': 'O', 'Р': 'P','С': 'C', 'Т': 'T','У': 'Y', 'Х': 'X',
@@ -181,7 +189,7 @@ def follow(thefile):
                 time.sleep(0.2)
                 if clear:
                     hour = datetime.now().hour
-                    if hour > 7 and hour < 21: # show reclamu in certan hours
+                    if hour > START_TIME_VIEW and hour < END_TIME_VIEW: # show reclamu in certan hours
                         print("Print Ads hour =",hour)
                         printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
                         cnt_ads += 1
