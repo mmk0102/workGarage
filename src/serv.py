@@ -22,6 +22,7 @@ justPrint = False # для отладки - только печать без и�
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
 strWelcome3 = "Privet"
+strMess1, strMess2, strMess3, strMess4 = "Приветствуем", "Здравствуйте", "Въезд запрещен", "Dont understand"
 if not justPrint:
     ComPort = serial.Serial('COM3')
     ComPort.baudrate = 2400
@@ -59,6 +60,7 @@ strS = bytes.fromhex('20') # Space
 
 cnt_ads = -1  # counter for ads messages
 tm = time.time() - WAIT_TIME + 1 # первую рекламму напечатает через секунду после вкл.
+time60 = time.time() # для 60 сек событий
 isShown = True # Есть напечатанное приветствие для авто. (по умолчанию 1 что бы при включении печатал рекламу)
 
 def portWrite(str):
@@ -158,7 +160,7 @@ def checkForClear():
     global WAIT_TIME
     global isShown
     global tm
-    dt = time.time()-tm
+    dt = time.time() - tm
     # Условие смены рекламы по времени
     if dt > 80:
         tm = time.time()
@@ -179,9 +181,14 @@ def checkForClear():
 
 # Read new line endless cycle - server
 def follow(thefile):
-    global cnt_ads
+    global cnt_ads, time60
     thefile.seek(0,2)
     while True:
+        # 60 секундные события
+        if time.time() - time60 > 60:
+            time60 = time.time()
+            print("one minute gone")
+            readFiles() #read adv. mess and etc. from files
         try:
             line = thefile.readline()
             if not line:
@@ -189,7 +196,7 @@ def follow(thefile):
                 time.sleep(0.2)
                 if clear:
                     hour = datetime.now().hour
-                    if hour > START_TIME_VIEW and hour < END_TIME_VIEW: # show reclamu in certan hours
+                    if cnt_ads > -1 and hour > START_TIME_VIEW and hour < END_TIME_VIEW: # show reclamu in certan hours
                         print("Print Ads hour =",hour)
                         printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
                         cnt_ads += 1
@@ -204,9 +211,8 @@ def follow(thefile):
             if not justPrint:
                 ComPort.close()        # close port
 
-
-if __name__ == '__main__':
-    
+def readFiles():
+    global strWelcome1, strWelcome2, strWelcome3, strMess1, strMess2, strMess3, strMess4, cnt_ads, ads_list, list1, list2, list3
     #read greetings and messages
     try:
         strWelcome1, strWelcome2, strWelcome3 = readWelcomes()
@@ -214,21 +220,29 @@ if __name__ == '__main__':
         strMess1, strMess2, strMess3, strMess4 = mes_str[0:4]
     except Exception as e:
         print("Ex: MessageANSI.txt read",e)
-        strMess1, strMess2, strMess3, strMess4 = "Приветствуем","Здравствуйте","Въезд запрещен","Dont understand"
-    
+        strMess1, strMess2, strMess3, strMess4 = "Приветствуем", "Здравствуйте", "Въезд запрещен", "Dont understand"
+
     try:
         ads_list = readMessages("reclamaANSI.txt")
     except Exception as e:
         print("Ex: reclamaANSI.txt read",e)
     
     if len(ads_list):   # если есть список рекламных сообщений
-        cnt_ads = 0     # делаем счетчик валидным
+        if cnt_ads == -1: # первое считываение
+            cnt_ads = 0     # делаем счетчик валидным
+        elif cnt_ads >=  len(ads_list): # если число сообщений уменьшилось и меньше текущего
+            cnt_ads = 0     # переходим в начало списка
     
     #read numbers list of cars
     list1 = readList('1.txt')
     list2 = readList('2.txt')
     list3 = readList('3.txt')
-    
+
+if __name__ == '__main__':
+
+    #read adv. mess and etc. from files
+    readFiles()
+
     #avtomarshall file
     logfile = open(current_dir+"VehicleRegistrationLog.csv","r", encoding='cp1251', errors='replace', newline='')
     loglines = follow(logfile)
