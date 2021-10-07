@@ -96,7 +96,7 @@ def readMessages(str):
 def readList(fileName):
     global ru_en_table
     try:
-        with open(current_dir+fileName, 'r', encoding='utf-8-sig', errors='replace', newline='') as f:
+        with open(current_dir+fileName, 'r', encoding='utf-8', errors='replace', newline='') as f: #-sig
             content = f.readlines()
             # you may also want to remove whitespace characters like `\n` at the end of each line
             content = [x.strip().translate(ru_en_table).upper() for x in content]
@@ -260,25 +260,8 @@ if __name__ == '__main__':
             strMess = strMess4
             strWelc = strWelcome1
             numExist = False
-
-            #search in List 1
-            for x in list1:
-                if x.find(strNum) != -1:
-                    strMess = strMess1
-                    strWelc = strWelcome1
-                    print("welcome1 " + strNum)
-                    numExist = True
-                    break
-            #search in List 2
-            if not numExist:
-                for x in list2:
-                    if x.find(strNum) != -1:
-                        strMess = strMess2
-                        strWelc = strWelcome2
-                        print("welcome2 " + strNum)
-                        numExist = True
-                        break
-            #search in List 3
+            
+            #search in List 3 - HIGH PRIORITY
             if not numExist:
                 for x in list3:
                     if x.find(strNum) != -1:
@@ -287,6 +270,24 @@ if __name__ == '__main__':
                         print("welcome3 " + strNum)
                         numExist = True
                         break
+            #search in List 1 - MIDDLE PRIORITY
+            for x in list1:
+                if x.find(strNum) != -1:
+                    strMess = strMess1
+                    strWelc = strWelcome1
+                    print("welcome1 " + strNum)
+                    numExist = True
+                    break
+            #search in List 2 - LOW PRIORITY
+            if not numExist:
+                for x in list2:
+                    if x.find(strNum) != -1:
+                        strMess = strMess2
+                        strWelc = strWelcome2
+                        print("welcome2 " + strNum)
+                        numExist = True
+                        break
+
             if not numExist:
                 print("welcome4 (no recognize) " + strNum)
 
