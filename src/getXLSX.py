@@ -9,9 +9,10 @@ def list_to_file(name, my_list):
     with open(name, 'w') as f:
         for x in my_list:
             f.write("%s\n" % x)
-
+# Path to my dir
+dir_path = "C:\managePanel" # "C:\managePanel"  --  "C:\my\work\workGarage\src"
 # Open no debt persons
-workbook = xlrd.open_workbook("C:\managePanel\\N.xls","rb") # "C:\managePanel\\"  --  "C:\my\work\workGarage\src\\"
+workbook = xlrd.open_workbook(dir_path + "\\N.xls","rb") 
 #sheet_count = workbook.nsheets
 
 sheet = workbook.sheet_by_index(0)
@@ -48,7 +49,7 @@ lst_2 = list(set(lst_2)) # remove duplicates
 list_to_file('2.txt',base_num) # write to file
 
 # Open debt persons
-workbook = xlrd.open_workbook("C:\my\work\workGarage\src\\D.xls","rb") # "C:\managePanel\\"  current_dir = "C:\my\work\workGarage\src\\"
+workbook = xlrd.open_workbook(dir_path + "\\D.xls","rb") # "C:\managePanel\\"  current_dir = "C:\my\work\workGarage\src\\"
 sheet = workbook.sheet_by_index(0)
 num_lst = sheet.col_values(6)
 lst_3 = []

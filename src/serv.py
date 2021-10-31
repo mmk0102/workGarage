@@ -9,15 +9,16 @@ COLOR = "01" # Красный - 01, Зеленый - 02, Желтый - 03, Си
 
 # длительность одного рекламного сообщения (сек)
 WAIT_TIME = 35 # время отображения сообщения для водителя после въезда (time of display of message for the driver after entry)
+ADV_TIME = 80 # длительность одного рекламного сообщения (duration of the advertisement message)
 
 # часы отображения рекламы (с .. по ..)
 START_TIME_VIEW = 7
 END_TIME_VIEW = 21
 
 # текущая директория
-current_dir = "C:\managePanel\\" # "C:\managePanel\\"  current_dir = "C:\my\work\workGarage\src\\"
+current_dir = "C:\my\work\workGarage\src\\" # "C:\managePanel\\"  current_dir = "C:\my\work\workGarage\src\\"
 
-justPrint = False # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
+justPrint = True # для отладки - только печать без использования сом-порта (панели). (use without com port, just print, for debug)
 
 strWelcome1 = "Privet"
 strWelcome2 = "Privet"
@@ -162,7 +163,7 @@ def checkForClear():
     global tm
     dt = time.time() - tm
     # Условие смены рекламы по времени
-    if dt > 80:
+    if dt > ADV_TIME:
         tm = time.time()
         isShown = True
     #print('dT = ',dt)
@@ -197,7 +198,7 @@ def follow(thefile):
                 if clear:
                     hour = datetime.now().hour
                     if cnt_ads > -1 and hour > START_TIME_VIEW and hour < END_TIME_VIEW: # show reclamu in certan hours
-                        print("Print Ads hour =",hour)
+                        print("Print Ads hour =",hour,'cnt',cnt_ads)
                         printMessages(ads_list[cnt_ads], 0) #print string 1 from (0..3)
                         cnt_ads += 1
                         if cnt_ads >= len(ads_list):
